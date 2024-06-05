@@ -10,29 +10,25 @@ namespace ingresa.Models
         Editor,
         Guest 
     }
-    public class User
+    public class Usuario
     {
 
-        public int UserId { get; set; }
+        public int UsuarioId { get; set; }
 
         [Required]
-        public string UserName { get; set; }
+        public string NombreUsuario{ get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 8)]
-        public string Password { get; set; }
+        public string Clave { get; set; }
 
         [Required]
-        public Role Role { get; set; }
-
+        public Role Rol { get; set; }
 
         public string Email { get; set; }
 
-
-
-
-        public int PersonId { get; set; }
-        public Person Person{ get; set; }
+        public int PersonaId { get; set; }
+        public Persona Persona{ get; set; }
 
     }
 }

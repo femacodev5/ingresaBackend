@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ingresa.Context;
 
@@ -11,9 +12,11 @@ using ingresa.Context;
 namespace ingresa.Migrations
 {
     [DbContext(typeof(AppDBcontext))]
-    partial class AppDBcontextModelSnapshot : ModelSnapshot
+    [Migration("20240605162151_25")]
+    partial class _25
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,28 +67,10 @@ namespace ingresa.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AsistenciaId"));
 
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EstadoDescanso")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateOnly>("Fecha")
-                        .HasColumnType("date");
-
                     b.Property<DateTime>("FechaCreacion")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FinDescansoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("FinMarcacionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InicioDescansoId")
                         .HasColumnType("int");
 
                     b.Property<int>("InicioMarcacionId")
@@ -94,12 +79,7 @@ namespace ingresa.Migrations
                     b.Property<int>("MinutosAsistencia")
                         .HasColumnType("int");
 
-                    b.Property<int>("PersonaId")
-                        .HasColumnType("int");
-
                     b.HasKey("AsistenciaId");
-
-                    b.HasIndex("PersonaId");
 
                     b.ToTable("Asistencias");
                 });
@@ -374,17 +354,6 @@ namespace ingresa.Migrations
                     b.Navigation("Contrato");
                 });
 
-            modelBuilder.Entity("ingresa.Models.Asistencia", b =>
-                {
-                    b.HasOne("ingresa.Models.Persona", "Persona")
-                        .WithMany("Asistencias")
-                        .HasForeignKey("PersonaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Persona");
-                });
-
             modelBuilder.Entity("ingresa.Models.Contrato", b =>
                 {
                     b.HasOne("ingresa.Models.Persona", "Persona")
@@ -458,8 +427,6 @@ namespace ingresa.Migrations
 
             modelBuilder.Entity("ingresa.Models.Persona", b =>
                 {
-                    b.Navigation("Asistencias");
-
                     b.Navigation("Contractos");
 
                     b.Navigation("Marcaciones");

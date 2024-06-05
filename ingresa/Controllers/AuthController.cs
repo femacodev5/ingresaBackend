@@ -52,14 +52,14 @@ namespace ingresa.Controllers
             string username = data.username.ToString();
             string password = data.password.ToString();
 
-            var user = await _context.Users.Include(u => u.Person).FirstOrDefaultAsync(u => u.UserName == username);
+            var user = await _context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync(u => u.NombreUsuario == username);
             
             if (user != null)
             {
-                if (user.Password == password)
+                if (user.Clave == password)
                 {
 
-                    var token = GenerateToken(user.UserName);
+                    var token = GenerateToken(user.Clave);
 
 
 

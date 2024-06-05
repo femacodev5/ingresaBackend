@@ -25,20 +25,26 @@ namespace ingresa.Controllers
         }
 
         // GET: api/Shifts
+
+        [HttpGet("Select")]
+        public async Task<ActionResult<IEnumerable<Turno>>> GetAll()
+        {
+            return await _context.Turnos.ToListAsync();
+        }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ShiftResponse>>> GetShift()
         {
-            var shifts = await _context.Shift
-                             .Include(s => s.ShiftDetails)
+            var shifts = await _context.Turnos
+                             .Include(s => s.DetalleTurnos)
                              .ToListAsync();
 
             var shiftResponses = shifts.Select(s => new ShiftResponse
             {
-                ShiftId = s.ShiftId,
-                Name = s.Name,
-                Type = s.Type,
-                ShiftDetails = s.ShiftDetails,
-                TotalMinutosJornadaNeto = s.ShiftDetails?
+                TurnoId = s.TurnoId,
+                Nombre = s.Nombre,
+                Tipo = s.Tipo,
+                DetalleTurnos = s.DetalleTurnos,
+                TotalMinutosJornadaNeto = s.DetalleTurnos?
                                     .Select(sd => (int)(sd.MinutosJornadaNeto))
                                     .Sum() ?? 0
             }).ToList();
@@ -49,9 +55,9 @@ namespace ingresa.Controllers
 
         // GET: api/Shifts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Shift>> GetShift(int id)
+        public async Task<ActionResult<Turno>> GetShift(int id)
         {
-            var shift = await _context.Shift.FindAsync(id);
+            var shift = await _context.Turnos.FindAsync(id);
 
             if (shift == null)
             {
@@ -64,9 +70,9 @@ namespace ingresa.Controllers
         // PUT: api/Shifts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutShift(int id, Shift shift)
+        public async Task<IActionResult> PutShift(int id, Turno shift)
         {
-            if (id != shift.ShiftId)
+            if (id != shift.TurnoId)
             {
                 return BadRequest();
             }
@@ -95,28 +101,25 @@ namespace ingresa.Controllers
         // POST: api/Shifts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Shift>> PostShift([FromBody] Object optData)
+        public async Task<ActionResult<Turno>> PostShift([FromBody] Object optData)
         {
             dynamic data = JsonConvert.DeserializeObject<dynamic>(optData.ToString());
 
-
-  
-
-            var shift = new Shift
+            var shift = new Turno
             {
-                Name = data.name.ToString(),
-                Type = data.type.ToString(),
+                Nombre = data.name.ToString(),
+                Tipo = data.type.ToString(),
             };
-            _context.Shift.Add(shift);
+            _context.Turnos.Add(shift);
             await _context.SaveChangesAsync();
-            var shiftId = shift.ShiftId;
+            var shiftId = shift.TurnoId;
 
             foreach (var detalle in data.detalleTurno)
             {
 
-                var detalleTurno = new ShiftDetail
+                var detalleTurno = new DetalleTurno
                 {
-                    ShiftId = shiftId,
+                    TurnoId = shiftId,
                     DiaSemana = (int)detalle.numero,
                     InicioMarcacionEntrada = new TimeSpan(DateTime.Parse((string)detalle.inicioMarcacionEntrada).Hour, DateTime.Parse((string)detalle.inicioMarcacionEntrada).Minute, 0),
                     FinMarcacionEntrada = new TimeSpan(DateTime.Parse((string)detalle.finMarcacionEntrada).Hour, DateTime.Parse((string)detalle.finMarcacionEntrada).Minute, 0),
@@ -134,8 +137,8 @@ namespace ingresa.Controllers
 
 
                 };
-                     detalleTurno.Shift = shift;
-                _context.ShiftDetail.Add(detalleTurno);
+                     detalleTurno.Turno = shift;
+                _context.DetalleTurnos.Add(detalleTurno);
 
             }
             await _context.SaveChangesAsync();
@@ -149,13 +152,13 @@ namespace ingresa.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShift(int id)
         {
-            var shift = await _context.Shift.FindAsync(id);
+            var shift = await _context.Turnos.FindAsync(id);
             if (shift == null)
             {
                 return NotFound();
             }
 
-            _context.Shift.Remove(shift);
+            _context.Turnos.Remove(shift);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -163,7 +166,7 @@ namespace ingresa.Controllers
 
         private bool ShiftExists(int id)
         {
-            return _context.Shift.Any(e => e.ShiftId == id);
+            return _context.Turnos.Any(e => e.TurnoId == id);
         }
     }
 }

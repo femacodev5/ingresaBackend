@@ -25,16 +25,16 @@ namespace ingresa.Controllers
 
         // GET: api/Clusters
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cluster>>> GetClusters()
+        public async Task<ActionResult<IEnumerable<Grupo>>> GetClusters()
         {
-            return await _context.Clusters.ToListAsync();
+            return await _context.Grupos.ToListAsync();
         }
 
         // GET: api/Clusters/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cluster>> GetCluster(int id)
+        public async Task<ActionResult<Grupo>> GetCluster(int id)
         {
-            var cluster = await _context.Clusters.FindAsync(id);
+            var cluster = await _context.Grupos.FindAsync(id);
 
             if (cluster == null)
             {
@@ -47,9 +47,9 @@ namespace ingresa.Controllers
         // PUT: api/Clusters/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCluster(int id, Cluster cluster)
+        public async Task<IActionResult> PutCluster(int id, Grupo cluster)
         {
-            if (id != cluster.ClusterId)
+            if (id != cluster.GrupoId)
             {
                 return BadRequest();
             }
@@ -78,32 +78,32 @@ namespace ingresa.Controllers
         // POST: api/Clusters
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cluster>> PostCluster(ClusterCreateDto clusterDto)
+        public async Task<ActionResult<Grupo>> PostCluster(ClusterCreateDto clusterDto)
         {
             if (!ModelState.IsValid) { 
                 return BadRequest();
             }
-            var cluster = new Cluster
+            var cluster = new Grupo
             {
-                ClusterName = clusterDto.ClusterName,
+                Nombre = clusterDto.ClusterName,
             };
-            _context.Clusters.Add(cluster);
+            _context.Grupos.Add(cluster);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCluster", new { id = cluster.ClusterId }, cluster);
+            return CreatedAtAction("GetCluster", new { id = cluster.GrupoId}, cluster);
         }
 
         // DELETE: api/Clusters/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCluster(int id)
         {
-            var cluster = await _context.Clusters.FindAsync(id);
+            var cluster = await _context.Grupos.FindAsync(id);
             if (cluster == null)
             {
                 return NotFound();
             }
 
-            _context.Clusters.Remove(cluster);
+            _context.Grupos.Remove(cluster);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -111,7 +111,7 @@ namespace ingresa.Controllers
 
         private bool ClusterExists(int id)
         {
-            return _context.Clusters.Any(e => e.ClusterId == id);
+            return _context.Grupos.Any(e => e.GrupoId == id);
         }
     }
 }

@@ -16,19 +16,20 @@ namespace ingresa.Context
 
 
 
-        public DbSet<Cluster> Clusters { get; set; }
-        public DbSet<Person> Persons { get; set; }  
-        public DbSet<Contract> Contracts { get; set; }
+        public DbSet<Grupo> Grupos { get; set; }
+        public DbSet<Persona> Personas { get; set; }  
+        public DbSet<Contrato> Contratos { get; set; }
 
-        public DbSet<Holiday> Holidays { get; set; }
-        public DbSet<User> Users{ get; set; }
-        public DbSet<ingresa.Models.Shift> Shift { get; set; } = default!;
-        public DbSet<ShiftDetail> ShiftDetail { get; set; }
+        public DbSet<Feriado> Feriados { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Turno> Turnos { get; set; }
+        public DbSet<DetalleTurno> DetalleTurnos { get; set; }
 
-        public DbSet<ContractFile> ContractFiles { get; set; }
+        public DbSet<ArchivoContrato> ArchivoContratos { get; set; }
 
+        public DbSet<Marcacion> Marcaciones { get; set; }
 
-
+        public DbSet<Asistencia> Asistencias { get; set; }
 
     }
 

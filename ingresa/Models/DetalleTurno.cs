@@ -1,8 +1,8 @@
 ﻿namespace ingresa.Models
 {
-    public class ShiftDetail
+    public class DetalleTurno
     {
-        public int Id { get; set; }
+        public int DetalleTurnoId { get; set; }
       
         public int DiaSemana { get; set; } // 0 para domingo, 1 para lunes, etc.
         public TimeSpan InicioMarcacionEntrada{ get; set; }
@@ -23,7 +23,7 @@
         public int MinutosJornadaNeto { get; set; }
 
 
-        public int ShiftId { get; set; }
-        public Shift Shift { get; set; }
+        public int TurnoId { get; set; }
+        public Turno Turno{ get; set; }
     }
 }

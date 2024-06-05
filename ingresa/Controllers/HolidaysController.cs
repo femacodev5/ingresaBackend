@@ -12,47 +12,47 @@ namespace ingresa.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class HolidaysController : ControllerBase
     {
         private readonly AppDBcontext _context;
 
-        public UsersController(AppDBcontext context)
+        public HolidaysController(AppDBcontext context)
         {
             _context = context;
         }
 
-        // GET: api/Users
+        // GET: api/Holidays
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<Feriado>>> GetHolidays()
         {
-            return await _context.Usuarios.ToListAsync();
+            return await _context.Feriados.ToListAsync();
         }
 
-        // GET: api/Users/5
+        // GET: api/Holidays/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> GetUser(int id)
+        public async Task<ActionResult<Feriado>> GetHoliday(int id)
         {
-            var user = await _context.Usuarios.FindAsync(id);
+            var holiday = await _context.Feriados.FindAsync(id);
 
-            if (user == null)
+            if (holiday == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return holiday;
         }
 
-        // PUT: api/Users/5
+        // PUT: api/Holidays/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, Usuario user)
+        public async Task<IActionResult> PutHoliday(int id, Feriado holiday)
         {
-            if (id != user.UsuarioId)
+            if (id != holiday.FeriadoId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(holiday).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace ingresa.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(id))
+                if (!HolidayExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace ingresa.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
+        // POST: api/Holidays
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUser(Usuario user)
+        public async Task<ActionResult<Feriado>> PostHoliday(Feriado holiday)
         {
-            _context.Usuarios.Add(user);
+            _context.Feriados.Add(holiday);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.UsuarioId }, user);
+            return CreatedAtAction("GetHoliday", new { id = holiday.FeriadoId }, holiday);
         }
 
-        // DELETE: api/Users/5
+        // DELETE: api/Holidays/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteHoliday(int id)
         {
-            var user = await _context.Usuarios.FindAsync(id);
-            if (user == null)
+            var holiday = await _context.Feriados.FindAsync(id);
+            if (holiday == null)
             {
                 return NotFound();
             }
 
-            _context.Usuarios.Remove(user);
+            _context.Feriados.Remove(holiday);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UserExists(int id)
+        private bool HolidayExists(int id)
         {
-            return _context.Usuarios.Any(e => e.UsuarioId == id);
+            return _context.Feriados.Any(e => e.FeriadoId == id);
         }
     }
 }

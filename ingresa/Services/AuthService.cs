@@ -39,7 +39,7 @@ namespace ingresa.Services
                     };
                 }
 
-                var user = await _context.Users.Include(u => u.Person).FirstOrDefaultAsync(u => u.UserId.ToString() == id);
+                var user = await _context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync(u => u.UsuarioId.ToString() == id);
                 if (user == null)
                 {
                     return new
@@ -55,13 +55,13 @@ namespace ingresa.Services
                     message = "Token valid",
                     user = new
                     {
-                        user.UserId,
-                        user.UserName,
-                        user.Role,
-                        user.Person.FirstName,
-                        user.Person.LastName,
-                        user.Person.Email,
-                        user.Person.DocumentNumber
+                        user.UsuarioId,
+                        user.NombreUsuario,
+                        user.Rol,
+                        user.Persona.Nombre,
+                        user.Persona.Apellido,
+                        user.Persona.Correo,
+                        user.Persona.NumeroDocumento
                     }
                 };
             }

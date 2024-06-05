@@ -1,10 +1,9 @@
 ﻿namespace ingresa.Models
 {
-    public class Holiday
+    public class Feriado
     {
-        public int HolidayId { get; set; }
-        public string Name { get; set;}
-
-        public  DateOnly Date{ get; set; }
+        public int FeriadoId { get; set; }
+        public string Nombre { get; set;}
+        public  DateOnly Fecha{ get; set; }
     }
 }

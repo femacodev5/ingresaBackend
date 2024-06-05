@@ -31,14 +31,14 @@ namespace ingresa.Controllers
         public IActionResult FinalizarContrato([FromForm] FinalizarContratoDTO dto)
         {
 
-            var contratoActivo = _context.Contracts.FirstOrDefault(c => c.PersonId == dto.PersonId && c.State);
+            var contratoActivo = _context.Contratos.FirstOrDefault(c => c.PersonaId == dto.PersonId && c.Estado);
 
             if (contratoActivo == null)
             {
                 return BadRequest("La persona no tiene un contrato activo para finalizar.");
             }
 
-            contratoActivo.State = false;
+            contratoActivo.Estado = false;
             contratoActivo.FechaConclucionContrato = dto.FechaFinContrato;
             _context.SaveChanges();
 
@@ -47,21 +47,21 @@ namespace ingresa.Controllers
         }
         // GET: api/Contracts
         [HttpGet("ContractsByPersonId/{id}")]
-        public async Task<ActionResult<IEnumerable<Contract>>> GetContractsByPersonId(int id)
+        public async Task<ActionResult<IEnumerable<Contrato>>> GetContractsByPersonId(int id)
         {
 
-            var contractsWithContractFiles = await _context.Contracts
-                 .Where(c => c.PersonId == id)
+        var contractsWithContractFiles = await _context.Contratos
+                 .Where(c => c.PersonaId == id)
          .Select(c => new
          {
-             c.ContractId,
-             c.StartDate,
-             c.EndDate,
-             c.Salary,
-             c.Vacation,
-             c.PersonId,
-             ContractFileUrl = _context.ContractFiles
-                .Where(cf => cf.ContractId == c.ContractId && cf.Type == "contrato")
+             c.ContratoId,
+             c.FechaInicio,
+             c.FechaFin,
+             c.Salario,
+             c.Vacaciones,
+             c.PersonaId,
+             ContractFileUrl = _context.ArchivoContratos
+                .Where(cf => cf.ContratoId == c.ContratoId && cf.Type == "contrato")
                 .Select(cf => cf.FilePath)
                 .FirstOrDefault()
          })
@@ -72,9 +72,9 @@ namespace ingresa.Controllers
 
         // GET: api/Contracts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Contract>> GetContract(int id)
+        public async Task<ActionResult<Contrato>> GetContract(int id)
         {
-            var contract = await _context.Contracts.FindAsync(id);
+            var contract = await _context.Contratos.FindAsync(id);
 
             if (contract == null)
             {
@@ -94,7 +94,7 @@ namespace ingresa.Controllers
                 return BadRequest();
             }
 
-            var contract = await _context.Contracts.FindAsync(id);
+            var contract = await _context.Contratos.FindAsync(id);
             if (contract == null)
             {
                 return NotFound();
@@ -113,8 +113,8 @@ namespace ingresa.Controllers
             if (contractUpdate.File != null)
             {
                 // Verificar si existe un archivo asociado al contrato
-                var existingFile = await _context.ContractFiles
-                    .Where(cf => cf.ContractId == contract.ContractId && cf.Type == "contrato")
+                var existingFile = await _context.ArchivoContratos
+                    .Where(cf => cf.ContratoId == contract.ContratoId && cf.Type == "contrato")
                     .FirstOrDefaultAsync();
 
                 if (existingFile != null)
@@ -127,7 +127,7 @@ namespace ingresa.Controllers
                     }
 
                     // Eliminar la entrada del archivo de la base de datos
-                    _context.ContractFiles.Remove(existingFile);
+                    _context.ArchivoContratos.Remove(existingFile);
                 }
 
                 // Guardar el nuevo archivo
@@ -139,26 +139,25 @@ namespace ingresa.Controllers
                     await contractUpdate.File.CopyToAsync(stream);
                 }
 
-                var contractFile = new ContractFile
+                var contractFile = new ArchivoContrato
                 {
-                    ContractId = contract.ContractId,
+                    ContratoId = contract.ContratoId,
                     FilePath = uniqueFileName,
                     Type = "contrato",
                     FileName = contractUpdate.File.FileName,
                     FileContentType = contractUpdate.File.ContentType
                 };
 
-                _context.ContractFiles.Add(contractFile);
+                _context.ArchivoContratos.Add(contractFile);
             }
 
 
 
 
-            contract.StartDate = contractUpdate.StartDate;
-            contract.EndDate = contractUpdate.EndDate;
-            contract.Salary = contractUpdate.Salary;
-            contract.Vacation = contractUpdate.Vacation;
-            contract.Vacation = contractUpdate.Vacation;
+            contract.FechaInicio = contractUpdate.StartDate;
+            contract.FechaFin = contractUpdate.EndDate;
+            contract.Salario = contractUpdate.Salary;
+            contract.Vacaciones = contractUpdate.Vacation;
             try
             {
                 await _context.SaveChangesAsync();
@@ -174,14 +173,14 @@ namespace ingresa.Controllers
                     throw;
                 }
             }
-            var updatedContract = await _context.Contracts.FindAsync(id);
+            var updatedContract = await _context.Contratos.FindAsync(id);
 
             return Ok(updatedContract);
         }
 
 
         [HttpPost]
-        public async Task<ActionResult<Contract>> PostContract([FromForm] CreateContractDto contractDto)
+        public async Task<ActionResult<Contrato>> PostContract([FromForm] CreateContractDto contractDto)
         {
 
             if (contractDto == null)
@@ -189,28 +188,28 @@ namespace ingresa.Controllers
                 return BadRequest("Invalid contract data.");
             }
 
-            var person = await _context.Persons.FindAsync(contractDto.PersonId);
+            var person = await _context.Personas.FindAsync(contractDto.PersonId);
 
             if (person == null)
             {
                 return BadRequest("Person not Found");
             }
 
-            var existingContracts = await _context.Contracts
-        .Where(c => c.PersonId == contractDto.PersonId)
+            var existingContracts = await _context.Contratos
+        .Where(c => c.PersonaId == contractDto.PersonId)
         .ToListAsync();
 
             foreach (var existingContract in existingContracts)
             {
-                existingContract.State = false;
+                existingContract.Estado = false;
             }
-            var contract = new Contract
+            var contract = new Contrato
             {
-                Salary = contractDto.Salary,
-                Vacation = contractDto.Vacation,
-                StartDate = contractDto.StartDate,
-                EndDate = contractDto.EndDate,
-                PersonId = contractDto.PersonId
+                Salario = contractDto.Salary,
+                Vacaciones= contractDto.Vacation,
+                FechaInicio = contractDto.StartDate,
+                FechaFin = contractDto.EndDate,
+                PersonaId = contractDto.PersonId
             };
 
 
@@ -224,23 +223,23 @@ namespace ingresa.Controllers
                 await contractDto.File.CopyToAsync(stream);
             }
 
-            var contractFile = new ContractFile
+            var contractFile = new ArchivoContrato
             {
-                ContractId = contract.ContractId,
+                ContratoId = contract.ContratoId,
                 FilePath = uniqueFileName,
                 Type="contrato",
                 FileName = contractDto.File.FileName,
                 FileContentType = contractDto.File.ContentType
             };
 
-            _context.ContractFiles.Add(contractFile);
+            _context.ArchivoContratos.Add(contractFile);
 
-            contractFile.Contract= contract;
+            contractFile.Contrato= contract;
             // Asignar la persona al contrato
-            contract.Person = person;
-            _context.Contracts.Add(contract);
+            contract.Persona = person;
+            _context.Contratos.Add(contract);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetContract", new { id = contract.ContractId }, contract);
+            return CreatedAtAction("GetContract", new { id = contract.ContratoId }, contract);
 
 
         }
@@ -249,13 +248,13 @@ namespace ingresa.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContract(int id)
         {
-            var contract = await _context.Contracts.FindAsync(id);
+            var contract = await _context.Contratos.FindAsync(id);
             if (contract == null)
             {
                 return NotFound();
             }
 
-            _context.Contracts.Remove(contract);
+            _context.Contratos.Remove(contract);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -263,7 +262,7 @@ namespace ingresa.Controllers
 
         private bool ContractExists(int id)
         {
-            return _context.Contracts.Any(e => e.ContractId == id);
+            return _context.Contratos.Any(e => e.ContratoId == id);
         }
     }
 }

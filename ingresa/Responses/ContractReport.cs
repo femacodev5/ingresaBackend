@@ -3,7 +3,7 @@
     public class ContractReport
     {
         
-    public int PersonId { get; set; }
+        public int PersonId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string DocumentNumber { get; set; }
