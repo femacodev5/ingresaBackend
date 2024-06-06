@@ -1,20 +1,21 @@
 ﻿using Microsoft.Data.SqlClient;
 using System.Data;
 using Microsoft.Extensions.Configuration;
+using Sap.Data.Hana;
+using System.Configuration;
 namespace ingresa.Context
 {
+
     public class DapperContext
     {
-        private readonly string _connectionString;
+        private readonly IConfiguration _configuration;
 
         public DapperContext(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("Connection");
+            _configuration = configuration;
         }
 
-        public IDbConnection GetConnection()
-        {
-            return new SqlConnection(_connectionString);
-        }
+        public SqlConnection CreateConnection() => new(_configuration.GetConnectionString("Connection"));
+        public HanaConnection CreateConnectionSAP() => new(_configuration.GetConnectionString("FemacoSAP"));
     }
 }

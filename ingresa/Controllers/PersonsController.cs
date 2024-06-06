@@ -80,41 +80,56 @@ namespace ingresa.Controllers
         }
 
         [HttpGet("Contract")]
-        public async Task<IEnumerable<ContractReport>> GetPersonsAndDataContract()
+        public async Task<IEnumerable<ContractReport>> Prueba()
         {
-            using (var connection = _contextDapper.GetConnection())
+            using (var connection = _contextDapper.CreateConnection())
             {
                 connection.Open();
                 var query = @"SELECT
-    p.PersonId,
-    p.FirstName,
-    p.LastName,
-    p.DocumentNumber,
+  ";
+                return await connection.QueryAsync<ContractReport>(query);
+            }
+        }
+
+
+
+
+        [HttpGet("Contract")]
+        public async Task<IEnumerable<ContractReport>> GetPersonsAndDataContract()
+        {
+            using (var connection = _contextDapper.CreateConnection())
+            {
+                connection.Open();
+                var query = @"SELECT
+    p.PersonaId,
+    p.Nombre,
+    p.Apellido,
+    p.NumeroDocumento,
 	cf.FileName,
     CASE
-        WHEN MAX(CASE WHEN c.StartDate IS NOT NULL THEN c.StartDate ELSE NULL END) IS NOT NULL THEN MAX(CASE WHEN c.StartDate IS NOT NULL THEN c.StartDate ELSE NULL END)
+        WHEN MAX(CASE WHEN c.FechaInicio IS NOT NULL THEN c.FechaInicio ELSE NULL END) IS NOT NULL THEN MAX(CASE WHEN c.FechaInicio IS NOT NULL THEN c.FechaInicio ELSE NULL END)
         ELSE NULL
     END AS StartDate,
     CASE
-        WHEN MAX(CASE WHEN c.EndDate IS NOT NULL THEN c.EndDate ELSE NULL END) IS NOT NULL THEN MAX(CASE WHEN c.EndDate IS NOT NULL THEN c.EndDate ELSE NULL END)
+        WHEN MAX(CASE WHEN c.FechaFin IS NOT NULL THEN c.FechaFin ELSE NULL END) IS NOT NULL THEN MAX(CASE WHEN c.FechaFin IS NOT NULL THEN c.FechaFin ELSE NULL END)
         ELSE NULL
     END AS EndDate,
     GETDATE() AS FechaActual,
-    COUNT(c.ContractId) AS NumContratos,
+    COUNT(c.ContratoId) AS NumContratos,
     CASE
-        WHEN SUM(CASE WHEN c.State = 1 AND c.EndDate <= GETDATE() THEN 1 ELSE 0 END) > 0 THEN 'Contrato Vigente'
-        WHEN SUM(CASE WHEN c.State = 0 AND c.EndDate > GETDATE() THEN 1 ELSE 0 END) > 0 THEN 'Contrato Expirado'
+        WHEN SUM(CASE WHEN c.Estado = 1 AND c.FechaFin <= GETDATE() THEN 1 ELSE 0 END) > 0 THEN 'Contrato Vigente'
+        WHEN SUM(CASE WHEN c.Estado = 0 AND c.FechaFin > GETDATE() THEN 1 ELSE 0 END) > 0 THEN 'Contrato Expirado'
     END AS EstadoContrato
 FROM
-    Persons p
+    Personas p
 LEFT JOIN
-    Contracts c ON p.PersonId = c.PersonId
-Left join ContractFiles cf on cf.ContractId=c.ContractId and cf.Type='contrato' 
+    Contratos c ON p.PersonaId = c.PersonaId
+Left join ArchivoContratos cf on cf.ContratoId=c.ContratoId and cf.Type='contrato' 
 GROUP BY
-    p.PersonId,
-    p.FirstName,
-    p.LastName,
-    p.DocumentNumber,
+    p.PersonaId,
+    p.Nombre,
+    p.Apellido,
+    p.NumeroDocumento,
 		cf.FileName;";
                 return await connection.QueryAsync<ContractReport>(query);
             }

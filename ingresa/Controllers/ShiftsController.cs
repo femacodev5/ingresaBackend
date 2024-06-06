@@ -116,6 +116,8 @@ namespace ingresa.Controllers
 
             foreach (var detalle in data.detalleTurno)
             {
+                if (detalle.diaLaboral==true)
+                {
 
                 var detalleTurno = new DetalleTurno
                 {
@@ -139,6 +141,7 @@ namespace ingresa.Controllers
                 };
                      detalleTurno.Turno = shift;
                 _context.DetalleTurnos.Add(detalleTurno);
+                }
 
             }
             await _context.SaveChangesAsync();

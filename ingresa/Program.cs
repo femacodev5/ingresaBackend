@@ -23,6 +23,10 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddScoped<DapperContext>();
+
+builder.Services.AddSingleton<DapperContext>();
+
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
