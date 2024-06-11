@@ -24,7 +24,6 @@ namespace ingresa.Models
 
         //contract
 
-        public ICollection<Contrato> Contractos { get; set; }
 
 
         //cluster 
@@ -34,8 +33,7 @@ namespace ingresa.Models
         public int? TurnoId { get; set; }
         public Turno? Turno { get; set; }
 
-        public ICollection<Marcacion> Marcaciones { get; set; }
-        public ICollection<Asistencia> Asistencias { get; set; }
+
 
 
     }

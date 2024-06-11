@@ -3,8 +3,8 @@
     public class UpdatePersonDto
     {
 
-        public int? ShiftId { get; set; }
-        public int PersonId { get; set; }
+        public int TurnoId { get; set; }
+        public int EmpId { get; set; }
 
     }
 }

@@ -84,15 +84,17 @@ namespace ingresa.Controllers
 
 
             string type = data?.type?.ToString();
-            int personId = data?.personId;
+            int empID = data?.empId;
             string hour = data?.hour;
             string date = data?.date;
+
+            Console.WriteLine(data.type);
 
             DateTime dateTime = DateTime.Parse(date + " " + hour);
 
             var existingRecord = await _context.Marcaciones.
 
-               FirstOrDefaultAsync(r => r.PersonaId == personId && r.Fecha.Date == dateTime.Date &&
+               FirstOrDefaultAsync(r => r.empID == empID && r.Fecha.Date == dateTime.Date &&
                r.Tipo==type
                );
      
@@ -104,7 +106,7 @@ namespace ingresa.Controllers
             }
 
             var record = new Marcacion();
-            record.PersonaId = personId;
+            record.empID = empID;
             record.Fecha = dateTime;
             record.Tipo = type;
 
@@ -116,7 +118,7 @@ namespace ingresa.Controllers
             if (type== "ingreso")
             {
                 var existingIngresoAsistencia = await _context.Asistencias
-    .FirstOrDefaultAsync(a => a.PersonaId == personId && a.Estado == "ingreso");
+    .FirstOrDefaultAsync(a => a.empID == empID && a.Estado == "ingreso");
 
                 if (existingIngresoAsistencia == null)
                 {
@@ -125,8 +127,8 @@ namespace ingresa.Controllers
                     {
                         InicioMarcacionId = record.MarcacionId,
                         Estado = "ingreso",
-                        PersonaId = personId,
-                        Fecha=new DateOnly()
+                        empID = empID,
+                        Fecha = DateOnly.FromDateTime(DateTime.Today)
                     });
                     await _context.SaveChangesAsync();
                 }
@@ -134,7 +136,7 @@ namespace ingresa.Controllers
             else if (type == "salida")
             {
                 var lastAttendance = await _context.Asistencias
-               .Where(a => a.PersonaId == personId && a.Estado=="ingreso")
+               .Where(a => a.empID == empID && a.Estado=="ingreso")
                .OrderByDescending(a => a.FechaCreacion)
                .FirstOrDefaultAsync();
 
@@ -148,7 +150,7 @@ namespace ingresa.Controllers
             }else if (type == "inicioDescanso")
             {
                 var lastAttendance = await _context.Asistencias
-               .Where(a => a.PersonaId == personId && a.Estado == "ingreso" && a.EstadoDescanso!= "inicioDescanso")
+               .Where(a => a.empID == empID && a.Estado == "ingreso" && a.EstadoDescanso!= "inicioDescanso")
                .OrderByDescending(a => a.FechaCreacion)
                .FirstOrDefaultAsync();
 
@@ -164,7 +166,7 @@ namespace ingresa.Controllers
             else if (type == "finDescanso")
             {
                 var lastAttendance = await _context.Asistencias
-               .Where(a => a.PersonaId == personId && a.Estado == "ingreso" && a.EstadoDescanso == "inicioDescanso")
+               .Where(a => a.empID == empID && a.Estado == "ingreso" && a.EstadoDescanso == "inicioDescanso")
                .OrderByDescending(a => a.FechaCreacion)
                .FirstOrDefaultAsync();
 

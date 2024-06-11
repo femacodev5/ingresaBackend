@@ -14,8 +14,7 @@ namespace ingresa.Models
         [DefaultValue(true)]
         public bool Estado { get; set; } = true;
 
-        public int PersonaId { get; set; }
-        public Persona Persona{ get; set; }
+        public int EmpID { get; set; }
 
         public decimal Salario { get; set; }
         public int Vacaciones { get; set; }

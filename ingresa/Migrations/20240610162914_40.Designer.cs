@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ingresa.Context;
 
@@ -11,9 +12,11 @@ using ingresa.Context;
 namespace ingresa.Migrations
 {
     [DbContext(typeof(AppDBcontext))]
-    partial class AppDBcontextModelSnapshot : ModelSnapshot
+    [Migration("20240610162914_40")]
+    partial class _40
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,6 +72,7 @@ namespace ingresa.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EstadoDescanso")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("Fecha")
@@ -232,29 +236,6 @@ namespace ingresa.Migrations
                     b.HasKey("FeriadoId");
 
                     b.ToTable("Feriados");
-                });
-
-            modelBuilder.Entity("ingresa.Models.FotoEmpleado", b =>
-                {
-                    b.Property<int>("FotoEmpleadoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FotoEmpleadoId"));
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("datosFoto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("empID")
-                        .HasColumnType("int");
-
-                    b.HasKey("FotoEmpleadoId");
-
-                    b.ToTable("FotoEmpleados");
                 });
 
             modelBuilder.Entity("ingresa.Models.Grupo", b =>

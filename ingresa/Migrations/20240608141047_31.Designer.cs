@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ingresa.Context;
 
@@ -11,9 +12,11 @@ using ingresa.Context;
 namespace ingresa.Migrations
 {
     [DbContext(typeof(AppDBcontext))]
-    partial class AppDBcontextModelSnapshot : ModelSnapshot
+    [Migration("20240608141047_31")]
+    partial class _31
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,6 +72,7 @@ namespace ingresa.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EstadoDescanso")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("Fecha")
@@ -93,10 +97,12 @@ namespace ingresa.Migrations
                     b.Property<int>("MinutosAsistencia")
                         .HasColumnType("int");
 
-                    b.Property<int>("empID")
+                    b.Property<int>("PersonaId")
                         .HasColumnType("int");
 
                     b.HasKey("AsistenciaId");
+
+                    b.HasIndex("PersonaId");
 
                     b.ToTable("Asistencias");
                 });
@@ -108,9 +114,6 @@ namespace ingresa.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContratoId"));
-
-                    b.Property<int>("EmpID")
-                        .HasColumnType("int");
 
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
@@ -124,6 +127,9 @@ namespace ingresa.Migrations
                     b.Property<DateOnly>("FechaInicio")
                         .HasColumnType("date");
 
+                    b.Property<int>("PersonaId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Salario")
                         .HasColumnType("decimal(18,2)");
 
@@ -131,6 +137,8 @@ namespace ingresa.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ContratoId");
+
+                    b.HasIndex("PersonaId");
 
                     b.ToTable("Contratos");
                 });
@@ -234,29 +242,6 @@ namespace ingresa.Migrations
                     b.ToTable("Feriados");
                 });
 
-            modelBuilder.Entity("ingresa.Models.FotoEmpleado", b =>
-                {
-                    b.Property<int>("FotoEmpleadoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FotoEmpleadoId"));
-
-                    b.Property<bool>("Estado")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("datosFoto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("empID")
-                        .HasColumnType("int");
-
-                    b.HasKey("FotoEmpleadoId");
-
-                    b.ToTable("FotoEmpleados");
-                });
-
             modelBuilder.Entity("ingresa.Models.Grupo", b =>
                 {
                     b.Property<int>("GrupoId")
@@ -293,14 +278,16 @@ namespace ingresa.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("PersonaId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Tipo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("empID")
-                        .HasColumnType("int");
-
                     b.HasKey("MarcacionId");
+
+                    b.HasIndex("PersonaId");
 
                     b.ToTable("Marcaciones");
                 });
@@ -412,6 +399,28 @@ namespace ingresa.Migrations
                     b.Navigation("Contrato");
                 });
 
+            modelBuilder.Entity("ingresa.Models.Asistencia", b =>
+                {
+                    b.HasOne("ingresa.Models.Persona", "Persona")
+                        .WithMany("Asistencias")
+                        .HasForeignKey("PersonaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Persona");
+                });
+
+            modelBuilder.Entity("ingresa.Models.Contrato", b =>
+                {
+                    b.HasOne("ingresa.Models.Persona", "Persona")
+                        .WithMany("Contractos")
+                        .HasForeignKey("PersonaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Persona");
+                });
+
             modelBuilder.Entity("ingresa.Models.DetalleTurno", b =>
                 {
                     b.HasOne("ingresa.Models.Turno", "Turno")
@@ -421,6 +430,17 @@ namespace ingresa.Migrations
                         .IsRequired();
 
                     b.Navigation("Turno");
+                });
+
+            modelBuilder.Entity("ingresa.Models.Marcacion", b =>
+                {
+                    b.HasOne("ingresa.Models.Persona", "Persona")
+                        .WithMany("Marcaciones")
+                        .HasForeignKey("PersonaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Persona");
                 });
 
             modelBuilder.Entity("ingresa.Models.Persona", b =>
@@ -459,6 +479,15 @@ namespace ingresa.Migrations
             modelBuilder.Entity("ingresa.Models.Grupo", b =>
                 {
                     b.Navigation("Persona");
+                });
+
+            modelBuilder.Entity("ingresa.Models.Persona", b =>
+                {
+                    b.Navigation("Asistencias");
+
+                    b.Navigation("Contractos");
+
+                    b.Navigation("Marcaciones");
                 });
 
             modelBuilder.Entity("ingresa.Models.Turno", b =>

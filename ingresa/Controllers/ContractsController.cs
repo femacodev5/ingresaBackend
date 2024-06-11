@@ -20,28 +20,59 @@ namespace ingresa.Controllers
     {
         private readonly AppDBcontext _context;
         private readonly IWebHostEnvironment _enviroment;
+        private readonly DapperContext _contextDapper;
 
-        public ContractsController(AppDBcontext context, IWebHostEnvironment webHostEnvironment)
+        public ContractsController(AppDBcontext context, IWebHostEnvironment webHostEnvironment, DapperContext connectionString)
         {
             _context = context;
             _enviroment = webHostEnvironment;
+            _contextDapper = connectionString;
 
         }
         [HttpPost("End")]
         public IActionResult FinalizarContrato([FromForm] FinalizarContratoDTO dto)
         {
+            // Buscar el contrato activo para la persona
+            var contratoActivo = _context.Contratos.FirstOrDefault(c => c.EmpID == dto.EmpID && c.Estado);
 
-            var contratoActivo = _context.Contratos.FirstOrDefault(c => c.PersonaId == dto.PersonId && c.Estado);
-
+            // Verificar si se encontró un contrato activo
             if (contratoActivo == null)
             {
                 return BadRequest("La persona no tiene un contrato activo para finalizar.");
             }
 
+            // Si se proporcionó un archivo para cargar
+            if (dto.File != null)
+            {
+                // Guardar el archivo
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + dto.File.FileName;
+                var filePath = Path.Combine(_enviroment.ContentRootPath, "uploads", uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    dto.File.CopyTo(stream);
+                }
+
+                // Crear un nuevo registro de archivo de contrato
+                var contractFile = new ArchivoContrato
+                {
+                    ContratoId = contratoActivo.ContratoId,
+                    FilePath = uniqueFileName,
+                    Type = "Cese", // Tipo de archivo, ¿es este el tipo correcto?
+                    FileName = dto.File.FileName,
+                    FileContentType = dto.File.ContentType
+                };
+
+                // Agregar el nuevo archivo de contrato a la base de datos
+                _context.ArchivoContratos.Add(contractFile);
+            }
+
+            // Finalizar el contrato activo
             contratoActivo.Estado = false;
             contratoActivo.FechaConclucionContrato = dto.FechaFinContrato;
-            _context.SaveChanges();
 
+            // Guardar los cambios en la base de datos
+            _context.SaveChanges();
 
             return Ok();
         }
@@ -49,23 +80,26 @@ namespace ingresa.Controllers
         [HttpGet("ContractsByPersonId/{id}")]
         public async Task<ActionResult<IEnumerable<Contrato>>> GetContractsByPersonId(int id)
         {
+            using (var connectionSAP = _contextDapper.CreateConnectionSAP())
+            {
 
-        var contractsWithContractFiles = await _context.Contratos
-                 .Where(c => c.PersonaId == id)
-         .Select(c => new
-         {
-             c.ContratoId,
-             c.FechaInicio,
-             c.FechaFin,
-             c.Salario,
-             c.Vacaciones,
-             c.PersonaId,
-             ContractFileUrl = _context.ArchivoContratos
-                .Where(cf => cf.ContratoId == c.ContratoId && cf.Type == "contrato")
-                .Select(cf => cf.FilePath)
-                .FirstOrDefault()
-         })
-        .ToListAsync();
+            }
+                var contractsWithContractFiles = await _context.Contratos
+                         .Where(c => c.EmpID == id)
+                 .Select(c => new
+                 {
+                     c.ContratoId,
+                     c.FechaInicio,
+                     c.FechaFin,
+                     c.Salario,
+                     c.Vacaciones,
+                     c.EmpID,
+                     ContractFileUrl = _context.ArchivoContratos
+                        .Where(cf => cf.ContratoId == c.ContratoId && cf.Type == "contrato")
+                        .Select(cf => cf.FilePath)
+                        .FirstOrDefault()
+                 })
+                .ToListAsync();
             return Ok(contractsWithContractFiles);
 
         }
@@ -89,7 +123,7 @@ namespace ingresa.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutContract(int id, [FromForm] ContractUpdateDto contractUpdate)
         {
-            if (id != contractUpdate.ContractId)
+            if (id != contractUpdate.ContratoId)
             {
                 return BadRequest();
             }
@@ -100,7 +134,7 @@ namespace ingresa.Controllers
                 return NotFound();
             }
 
-            if (id != contractUpdate.ContractId)
+            if (id != contractUpdate.ContratoId)
             {
                 return BadRequest();
             }
@@ -154,10 +188,10 @@ namespace ingresa.Controllers
 
 
 
-            contract.FechaInicio = contractUpdate.StartDate;
-            contract.FechaFin = contractUpdate.EndDate;
-            contract.Salario = contractUpdate.Salary;
-            contract.Vacaciones = contractUpdate.Vacation;
+            contract.FechaInicio = contractUpdate.FechaInicio;
+            contract.FechaFin = contractUpdate.FechaFin;
+            contract.Salario = contractUpdate.Salario;
+            contract.Vacaciones = contractUpdate.Vacaciones;
             try
             {
                 await _context.SaveChangesAsync();
@@ -188,15 +222,10 @@ namespace ingresa.Controllers
                 return BadRequest("Invalid contract data.");
             }
 
-            var person = await _context.Personas.FindAsync(contractDto.PersonId);
 
-            if (person == null)
-            {
-                return BadRequest("Person not Found");
-            }
 
             var existingContracts = await _context.Contratos
-        .Where(c => c.PersonaId == contractDto.PersonId)
+        .Where(c => c.EmpID == contractDto.EmpID)
         .ToListAsync();
 
             foreach (var existingContract in existingContracts)
@@ -205,11 +234,11 @@ namespace ingresa.Controllers
             }
             var contract = new Contrato
             {
-                Salario = contractDto.Salary,
-                Vacaciones= contractDto.Vacation,
-                FechaInicio = contractDto.StartDate,
-                FechaFin = contractDto.EndDate,
-                PersonaId = contractDto.PersonId
+                Salario = contractDto.Salario,
+                Vacaciones= contractDto.Vacaciones,
+                FechaInicio = contractDto.FechaInicio,
+                FechaFin = contractDto.FechaFin,
+                EmpID = contractDto.EmpID
             };
 
 
@@ -236,7 +265,7 @@ namespace ingresa.Controllers
 
             contractFile.Contrato= contract;
             // Asignar la persona al contrato
-            contract.Persona = person;
+    
             _context.Contratos.Add(contract);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetContract", new { id = contract.ContratoId }, contract);

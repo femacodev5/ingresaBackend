@@ -2,7 +2,7 @@
 {
     public class ContractUpdateDto: CreateContractDto
     {
-        public int ContractId { get; set; }
+        public int ContratoId { get; set; }
 }
 
 }

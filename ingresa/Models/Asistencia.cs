@@ -11,7 +11,7 @@ namespace ingresa.Models
 
         public int InicioDescansoId { get; set; }
         public int FinDescansoId { get; set; }
-        public string EstadoDescanso{ get; set; }
+        public string? EstadoDescanso{ get; set; }
 
 
         public int MinutosAsistencia { get; set; }
@@ -21,7 +21,6 @@ namespace ingresa.Models
         public DateOnly Fecha { get; set; }
 
         public string Estado { get; set; }
-        public int PersonaId { get; set; }
-        public Persona Persona{ get; set; }
+        public int empID { get; set; }
     }
 }

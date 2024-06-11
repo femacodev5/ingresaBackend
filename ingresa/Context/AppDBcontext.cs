@@ -30,6 +30,8 @@ namespace ingresa.Context
         public DbSet<Marcacion> Marcaciones { get; set; }
 
         public DbSet<Asistencia> Asistencias { get; set; }
+        public DbSet<EmpleadoTurno> EmpleadoTurnos { get; set; }
+        public DbSet<FotoEmpleado> FotoEmpleados { get; set; }
 
     }
 

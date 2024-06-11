@@ -4,11 +4,11 @@ namespace ingresa.Dtos
 {
     public class CreateContractDto
     {
-        public decimal Salary { get; set; }
-        public int  Vacation { get; set; }
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
-        public int PersonId { get; set; }
+        public decimal Salario { get; set; }
+        public int Vacaciones { get; set; }
+        public DateOnly FechaFin { get; set; }
+        public DateOnly FechaInicio { get; set; }
+        public int EmpID { get; set; }
         public IFormFile? File { get; set; }
     }
 
